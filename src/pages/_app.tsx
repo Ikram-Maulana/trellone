@@ -1,17 +1,28 @@
 import "@/styles/globals.css";
 import { api } from "@/utils/api";
+import type { NextPage } from "next";
 import { type Session } from "next-auth";
 import { SessionProvider } from "next-auth/react";
-import { type AppType } from "next/app";
+import type { AppProps } from "next/app";
 import { Inter } from "next/font/google";
 
 const inter = Inter({ subsets: ["latin"] });
 
-const MyApp: AppType<{ session: Session | null }> = ({
+export type NextPageWithLayout = NextPage & {
+  getLayout?: (page: React.ReactElement) => React.ReactNode;
+};
+
+type AppPropsWithLayout = AppProps<{ session: Session | null }> & {
+  Component: NextPageWithLayout;
+};
+
+const MyApp = ({
   Component,
   pageProps: { session, ...pageProps },
-}) => {
-  return (
+}: AppPropsWithLayout) => {
+  const getLayout = Component.getLayout ?? ((page) => page);
+
+  return getLayout(
     <>
       <style jsx global>{`
         html {
@@ -22,7 +33,7 @@ const MyApp: AppType<{ session: Session | null }> = ({
       <SessionProvider session={session}>
         <Component {...pageProps} />
       </SessionProvider>
-    </>
+    </>,
   );
 };
 
