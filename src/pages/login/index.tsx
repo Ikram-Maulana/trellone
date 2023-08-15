@@ -6,7 +6,7 @@ import { ChevronLeftIcon } from "@radix-ui/react-icons";
 import { type GetServerSideProps } from "next";
 import Head from "next/head";
 import Link from "next/link";
-import { type FC } from "react";
+import React, { type FC } from "react";
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const session = await getServerAuthSession(ctx);
@@ -39,14 +39,10 @@ const Login: FC = () => {
         )}
         {SiteMetadata.authors.length > 0 &&
           SiteMetadata.authors.map((author, index) => (
-            <>
-              <link rel="author" href={author.url} key={`author-${index}`} />
-              <meta
-                name="author"
-                content={author.name}
-                key={`author-${index}`}
-              />
-            </>
+            <React.Fragment key={`author-${index}`}>
+              <link rel="author" href={author.url} />
+              <meta name="author" content={author.name} />
+            </React.Fragment>
           ))}
         <meta name="theme-color" content={SiteMetadata.themeColor} />
         <meta name="creator" content={SiteMetadata.creator} />
