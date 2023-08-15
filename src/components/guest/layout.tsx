@@ -1,6 +1,7 @@
-import Navbar from "@/components/guest/navbar";
-import { SiteMetadata } from "@/lib/metadata";
+import Navbar from "@/components/navbar";
+import { SiteMetadata } from "@/data/metadata";
 import Head from "next/head";
+import React from "react";
 
 interface LayoutProps {
   title?: string;
@@ -23,14 +24,10 @@ export default function Layout({ title, children }: LayoutProps) {
         )}
         {SiteMetadata.authors.length > 0 &&
           SiteMetadata.authors.map((author, index) => (
-            <>
-              <link rel="author" href={author.url} key={`author-${index}`} />
-              <meta
-                name="author"
-                content={author.name}
-                key={`author-${index}`}
-              />
-            </>
+            <React.Fragment key={`author-${index}`}>
+              <link rel="author" href={author.url} />
+              <meta name="author" content={author.name} />
+            </React.Fragment>
           ))}
         <meta name="theme-color" content={SiteMetadata.themeColor} />
         <meta name="creator" content={SiteMetadata.creator} />
