@@ -17,7 +17,8 @@ datasource db {
 model Todos {
     id        String   @id @default(cuid())
     title     String
-    status    TodoStatus
+    status    Status   @relation(fields: [statusId], references: [id])
+    statusId  String
     image     String?
     user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
     userId    String
@@ -25,10 +26,12 @@ model Todos {
     updatedAt DateTime @updatedAt
 }
 
-enum TodoStatus {
-  todo
-  inprogress
-  done
+model Status {
+    id        String   @id @default(cuid())
+    name      String
+    todos     Todos[]
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
 }
 
 // Necessary for Next auth
