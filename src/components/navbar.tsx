@@ -29,17 +29,20 @@ import {
 import { toast } from "@/components/ui/use-toast";
 import { NavbarItem } from "@/data/navbar";
 import { cn } from "@/lib/utils";
-import { ExitIcon, ReloadIcon } from "@radix-ui/react-icons";
+import { ChevronDownIcon, ExitIcon, ReloadIcon } from "@radix-ui/react-icons";
 import initials from "initials";
 import { type Session } from "next-auth";
 import { getSession, signOut } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState, type FC } from "react";
+import { useToggle, useWindowSize } from "usehooks-ts";
 
 const Navbar: FC = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [isLoadingLogout, setIsLoadingLogout] = useState(false);
+  const [value, toggle, setValue] = useToggle();
+  const { width } = useWindowSize();
 
   useEffect(() => {
     const gettingSession = async () => {
@@ -58,6 +61,12 @@ const Navbar: FC = () => {
       });
   }, []);
 
+  useEffect(() => {
+    if (width < 768 && value) {
+      setValue(false);
+    }
+  }, [width, value, setValue]);
+
   const handleSignOut = async () => {
     try {
       setIsLoadingLogout(true);
@@ -71,6 +80,7 @@ const Navbar: FC = () => {
         variant: "destructive",
       });
     } finally {
+      setValue(false);
       setIsLoadingLogout(false);
     }
   };
@@ -126,22 +136,32 @@ const Navbar: FC = () => {
               </DialogContent>
             </Dialog>
           ) : (
-            <DropdownMenu>
-              <DropdownMenuTrigger>
-                <Avatar>
-                  <AvatarImage
-                    src={
-                      session.user.image ??
-                      "https://eu.ui-avatars.com/api/?name=Daunnesia&size=250"
-                    }
-                    alt={session.user.name ?? "Daunnesia"}
-                    width={40}
-                    height={40}
-                  />
-                  <AvatarFallback>
-                    {initials(session.user.name ?? "DA")}
-                  </AvatarFallback>
-                </Avatar>
+            <DropdownMenu open={value} onOpenChange={setValue}>
+              <DropdownMenuTrigger onClick={toggle}>
+                <div className="flex items-center space-x-2">
+                  <Avatar>
+                    <AvatarImage
+                      src={
+                        session.user.image ??
+                        "https://eu.ui-avatars.com/api/?name=Daunnesia&size=250"
+                      }
+                      alt={session.user.name ?? "Daunnesia"}
+                      width={40}
+                      height={40}
+                    />
+                    <AvatarFallback>
+                      {initials(session.user.name ?? "DA")}
+                    </AvatarFallback>
+                  </Avatar>
+                  <h2 className="text-sm font-semibold">
+                    {session.user.name ?? "Daunnesia"}
+                  </h2>
+                  {value ? (
+                    <ChevronDownIcon className="h-4 w-4 rotate-180 transform transition-all" />
+                  ) : (
+                    <ChevronDownIcon className="h-4 w-4 transition-all" />
+                  )}
+                </div>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 <DropdownMenuLabel>
