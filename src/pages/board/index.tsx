@@ -1,6 +1,7 @@
 import Layout from "@/components/guest/layout";
 import { getServerAuthSession } from "@/server/auth";
 import { type GetServerSideProps } from "next";
+import { DragDropContext, Droppable } from "react-beautiful-dnd";
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const session = await getServerAuthSession(ctx);
@@ -21,9 +22,23 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
 
 export default function Board() {
   return (
-    <div className="container max-w-7xl">
-      <h1>Hello Board</h1>
-    </div>
+    <section id="board" className="container">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+        <div className="py-12 md:py-20">
+          {/* <DragDropContext>
+            <Droppable
+              droppableId="board"
+              direction="horizontal"
+              type="column"
+            >
+              {(provided) => (
+                // Rendering All the Column
+              )}
+            </Droppable>
+          </DragDropContext> */}
+        </div>
+      </div>
+    </section>
   );
 }
 
