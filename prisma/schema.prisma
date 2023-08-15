@@ -14,10 +14,21 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
-model Example {
+model Todos {
     id        String   @id @default(cuid())
+    title     String
+    status    TodoStatus
+    image     String?
+    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId    String
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
+}
+
+enum TodoStatus {
+  todo
+  inprogress
+  done
 }
 
 // Necessary for Next auth
@@ -55,6 +66,7 @@ model User {
     image         String?
     accounts      Account[]
     sessions      Session[]
+    todos         Todos[]
 }
 
 model VerificationToken {
