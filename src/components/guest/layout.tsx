@@ -1,3 +1,4 @@
+import Footer from "@/components/footer";
 import Navbar from "@/components/navbar";
 import { SiteMetadata } from "@/data/metadata";
 import Head from "next/head";
@@ -35,6 +36,7 @@ export default function Layout({ title, children }: LayoutProps) {
 
       <Navbar />
       <main>{children}</main>
+      <Footer />
     </>
   );
 }
