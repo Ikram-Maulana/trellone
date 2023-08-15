@@ -5,6 +5,7 @@ import { type Session } from "next-auth";
 import { SessionProvider } from "next-auth/react";
 import type { AppProps } from "next/app";
 import { Inter } from "next/font/google";
+import NextTopLoader from "nextjs-toploader";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -31,6 +32,7 @@ const MyApp = ({
       `}</style>
 
       <SessionProvider session={session}>
+        <NextTopLoader />
         <Component {...pageProps} />
       </SessionProvider>
     </>,
