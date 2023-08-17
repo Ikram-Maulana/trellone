@@ -55,7 +55,7 @@ const Column: FC<ColumnProps> = ({ id, todos, index }) => {
                 <div className={cn("space-y-2 p-4 py-0")}>
                   {todos.map((todo, index) => (
                     <Draggable
-                      draggableId={`todo-${todo.id}`}
+                      draggableId={todo.id}
                       index={index}
                       key={todo.id}
                     >
