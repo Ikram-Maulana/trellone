@@ -32,6 +32,8 @@ model Status {
     todos     Todos[]
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
+
+    @@unique([name])
 }
 
 // Necessary for Next auth
