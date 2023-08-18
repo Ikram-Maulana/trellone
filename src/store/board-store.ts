@@ -4,6 +4,8 @@ import { create } from "zustand";
 type BoardState = {
   board: Board;
   setBoardState: (board: Board) => void;
+  searchString: string;
+  setSearchString: (searchString: string) => void;
 };
 
 export const useBoardStore = create<BoardState>()((set) => ({
@@ -11,4 +13,6 @@ export const useBoardStore = create<BoardState>()((set) => ({
     columns: new Map<string, Column>(),
   },
   setBoardState: (board: Board) => set({ board }),
+  searchString: "",
+  setSearchString: (searchString: string) => set({ searchString }),
 }));

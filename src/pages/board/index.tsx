@@ -1,5 +1,6 @@
 import Column from "@/components/column";
 import Layout from "@/components/guest/layout";
+import { Input } from "@/components/ui/input";
 import { getServerAuthSession } from "@/server/auth";
 import { useBoardStore } from "@/store/board-store";
 import { api } from "@/utils/api";
@@ -30,7 +31,8 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
 
 export default function Board() {
   const { data: sessionData } = useSession();
-  const { board, setBoardState } = useBoardStore();
+  const { board, setBoardState, searchString, setSearchString } =
+    useBoardStore();
   const {
     data: boardData,
     isLoading: isLoadingBoardData,
@@ -43,11 +45,7 @@ export default function Board() {
     },
   });
 
-  const { mutate: moveTodo } = api.todos.moveTodo.useMutation({
-    onSuccess: async () => {
-      await refetchBoardData();
-    },
-  });
+  const { mutate: moveTodo } = api.todos.moveTodo.useMutation();
 
   const handleOnDragEnd = (result: DropResult) => {
     const { destination, source, type } = result;
@@ -152,6 +150,27 @@ export default function Board() {
     <section id="board" className="container">
       <div className="mx-auto max-w-7xl px-4 md:px-6">
         <div className="py-12 md:py-20">
+          <div className="mx-auto mb-12 max-w-4xl text-center">
+            <h1 className="mb-6 scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
+              Your Boards
+            </h1>
+            <div className="mx-auto max-w-3xl">
+              <p className="mb-6 text-xl text-gray-600 dark:text-zinc-400">
+                Drag and drop to organize your tasks and get things done with
+                simplicity and ease with Trellone.
+              </p>
+            </div>
+
+            <div className="mx-auto max-w-xl">
+              <Input
+                placeholder="Search todo..."
+                type="text"
+                value={searchString}
+                onChange={(e) => setSearchString(e.target.value)}
+              />
+            </div>
+          </div>
+
           {isLoadingBoardData && <p>Loading...</p>}
           {isErrorBoardData && <p>Error</p>}
           {!isLoadingBoardData && !isErrorBoardData && !boardData && (
