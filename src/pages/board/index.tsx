@@ -1,9 +1,13 @@
 import Column from "@/components/column";
 import Layout from "@/components/guest/layout";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 import { getServerAuthSession } from "@/server/auth";
 import { useBoardStore } from "@/store/board-store";
 import { api } from "@/utils/api";
+import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 import { type GetServerSideProps } from "next";
 import { useSession } from "next-auth/react";
 import {
@@ -171,10 +175,37 @@ export default function Board() {
             </div>
           </div>
 
-          {isLoadingBoardData && <p>Loading...</p>}
-          {isErrorBoardData && <p>Error</p>}
+          {isLoadingBoardData && (
+            <div className="mx-auto grid max-w-7xl grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+              {Array.from({ length: 3 }).map((_, index) => (
+                <Skeleton
+                  className="h-[150px] rounded-xl border shadow"
+                  key={index}
+                />
+              ))}
+            </div>
+          )}
+          {isErrorBoardData && (
+            <Alert variant="destructive">
+              <ExclamationTriangleIcon className="h-4 w-4" />
+              <AlertTitle>Error</AlertTitle>
+              <AlertDescription>
+                Failed to load board data. Please try again.
+              </AlertDescription>
+            </Alert>
+          )}
           {!isLoadingBoardData && !isErrorBoardData && !boardData && (
-            <p>Empty</p>
+            <Alert
+              className={cn(
+                "border-amber-500/50 text-amber-500 dark:border-amber-500 [&>svg]:text-amber-500",
+              )}
+            >
+              <ExclamationTriangleIcon className="h-4 w-4" />
+              <AlertTitle>Warning</AlertTitle>
+              <AlertDescription>
+                No board data found. Please contact the administrator.
+              </AlertDescription>
+            </Alert>
           )}
           {!isLoadingBoardData && !isErrorBoardData && board && (
             <DragDropContext onDragEnd={handleOnDragEnd}>

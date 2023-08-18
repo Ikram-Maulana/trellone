@@ -34,9 +34,11 @@ export default function Layout({ title, children }: LayoutProps) {
         <meta name="creator" content={SiteMetadata.creator} />
       </Head>
 
-      <Navbar />
-      <main>{children}</main>
-      <Footer />
+      <div className="flex min-h-screen flex-col">
+        <Navbar />
+        <main className="flex-1">{children}</main>
+        <Footer />
+      </div>
     </>
   );
 }
