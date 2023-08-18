@@ -88,26 +88,16 @@ export const todosRouter = createTRPCRouter({
   deleteTodo: protectedProcedure
     .input(
       z.object({
-        todoIdx: z.number(),
-        todo: z.object({
-          id: z.string(),
-          title: z.string(),
-          statusId: z.string(),
-          image: z.string().nullable(),
-          userId: z.string(),
-          createdAt: z.date(),
-          updatedAt: z.date(),
-        }),
-        status: z.string(),
+        todoId: z.string(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const { todoIdx, todo, status } = input;
+      const { todoId } = input;
       const { id } = ctx.session.user;
 
       const deletedTodo = await prisma.todos.delete({
         where: {
-          id: todo.id,
+          id: todoId,
           userId: id,
         },
       });
@@ -115,9 +105,7 @@ export const todosRouter = createTRPCRouter({
       return {
         error: null,
         data: {
-          todoIdx,
           deletedTodo,
-          status,
         },
       };
     }),
