@@ -10,6 +10,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/use-toast";
 import { useBoardStore } from "@/store/board-store";
 import { api } from "@/utils/api";
 import { type Todos } from "@prisma/client";
@@ -38,14 +39,23 @@ const TodoCard: FC<TodoCardProps> = ({
   dragHandleProps,
 }) => {
   const { board, setBoardState } = useBoardStore();
-  const { mutate: deleteTodo } = api.todos.deleteTodo.useMutation({
-    onSuccess: (deletedTodo) => {
-      const { todoIdx, status } = deletedTodo.data;
-      const newColumns = new Map(board.columns);
-      newColumns.get(status)?.todos.splice(todoIdx, 1);
-      setBoardState({ ...board, columns: newColumns });
-    },
-  });
+  const { mutate: deleteTodo } = api.todos.deleteTodo.useMutation();
+
+  const onDeleteTodo = (todoId: string) => {
+    const newColumns = new Map(board.columns);
+    newColumns.get(id)?.todos.splice(index, 1);
+
+    deleteTodo({
+      todoId,
+    });
+
+    setBoardState({ ...board, columns: newColumns });
+
+    toast({
+      title: "Todo deleted",
+      description: "Your todo has been deleted from the board.",
+    });
+  };
 
   return (
     <div
@@ -78,11 +88,7 @@ const TodoCard: FC<TodoCardProps> = ({
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={() =>
-                    deleteTodo({ todoIdx: index, todo, status: id })
-                  }
-                >
+                <AlertDialogAction onClick={() => onDeleteTodo?.(todo.id)}>
                   Continue
                 </AlertDialogAction>
               </AlertDialogFooter>

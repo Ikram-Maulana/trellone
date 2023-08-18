@@ -1,3 +1,4 @@
+import { Toaster } from "@/components/ui/toaster";
 import "@/styles/globals.css";
 import { api } from "@/utils/api";
 import type { NextPage } from "next";
@@ -34,6 +35,7 @@ const MyApp = ({
       <SessionProvider session={session}>
         <NextTopLoader />
         <Component {...pageProps} />
+        <Toaster />
       </SessionProvider>
     </>,
   );
