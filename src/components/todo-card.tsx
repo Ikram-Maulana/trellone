@@ -28,6 +28,7 @@ interface TodoCardProps {
   innerRef: (element: HTMLElement | null) => void;
   draggableProps: DraggableProvidedDraggableProps;
   dragHandleProps: DraggableProvidedDragHandleProps | null | undefined;
+  refetchBoardData: () => void;
 }
 
 const TodoCard: FC<TodoCardProps> = ({
@@ -37,9 +38,14 @@ const TodoCard: FC<TodoCardProps> = ({
   innerRef,
   draggableProps,
   dragHandleProps,
+  refetchBoardData,
 }) => {
   const { board, setBoardState } = useBoardStore();
-  const { mutate: deleteTodo } = api.todos.deleteTodo.useMutation();
+  const { mutate: deleteTodo } = api.todos.deleteTodo.useMutation({
+    onError: () => {
+      refetchBoardData();
+    },
+  });
 
   const onDeleteTodo = (todoId: string) => {
     const newColumns = new Map(board.columns);

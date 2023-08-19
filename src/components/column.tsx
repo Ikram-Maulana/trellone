@@ -12,6 +12,7 @@ interface ColumnProps {
   id: string;
   todos: Todos[];
   index: number;
+  refetchBoardData: () => void;
 }
 
 const idToColumnText: Record<string, string> = {
@@ -20,7 +21,7 @@ const idToColumnText: Record<string, string> = {
   done: "Done",
 };
 
-const Column: FC<ColumnProps> = ({ id, todos, index }) => {
+const Column: FC<ColumnProps> = ({ id, todos, index, refetchBoardData }) => {
   const { searchString } = useBoardStore();
   const debouncedValue = useDebounce<string>(searchString, 300);
 
@@ -94,6 +95,9 @@ const Column: FC<ColumnProps> = ({ id, todos, index }) => {
                             innerRef={provided.innerRef}
                             draggableProps={provided.draggableProps}
                             dragHandleProps={provided.dragHandleProps}
+                            refetchBoardData={() => {
+                              void refetchBoardData();
+                            }}
                           />
                         )}
                       </Draggable>
