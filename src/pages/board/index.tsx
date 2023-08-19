@@ -49,7 +49,11 @@ export default function Board() {
     },
   });
 
-  const { mutate: moveTodo } = api.todos.moveTodo.useMutation();
+  const { mutate: moveTodo } = api.todos.moveTodo.useMutation({
+    onError: async () => {
+      await refetchBoardData();
+    },
+  });
 
   const handleOnDragEnd = (result: DropResult) => {
     const { destination, source, type } = result;
@@ -227,6 +231,9 @@ export default function Board() {
                           id={id}
                           todos={column.todos}
                           index={index}
+                          refetchBoardData={() => {
+                            void refetchBoardData();
+                          }}
                         />
                       ),
                     )}
