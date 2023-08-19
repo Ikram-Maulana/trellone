@@ -1,3 +1,4 @@
+import { statusesRouter } from "@/server/api/routers/statuses";
 import { todosRouter } from "@/server/api/routers/todos";
 import { createTRPCRouter } from "@/server/api/trpc";
 
@@ -8,6 +9,7 @@ import { createTRPCRouter } from "@/server/api/trpc";
  */
 export const appRouter = createTRPCRouter({
   todos: todosRouter,
+  statuses: statusesRouter
 });
 
 // export type definition of API
