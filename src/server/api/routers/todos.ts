@@ -34,6 +34,50 @@ export const todosRouter = createTRPCRouter({
     return board;
   }),
 
+  addTodo: protectedProcedure
+    .input(
+      z.object({
+        title: z.string(),
+        status: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { title, status } = input;
+      const { id } = ctx.session.user;
+
+      const statudId = await prisma.status.findUnique({
+        where: {
+          name: status,
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      if (!statudId) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Status not found",
+        });
+      }
+
+      const newTodo = await prisma.todos.create({
+        data: {
+          title,
+          statusId: statudId.id,
+          userId: id,
+        },
+      });
+
+      return {
+        error: null,
+        data: {
+          statusName: status,
+          newTodo,
+        },
+      };
+    }),
+
   moveTodo: protectedProcedure
     .input(
       z.object({
