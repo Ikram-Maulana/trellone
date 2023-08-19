@@ -98,6 +98,14 @@ export function AddTodo({ name }: { name: string }) {
           description: "Todo added successfully.",
         });
       },
+      onError: () => {
+        setValue(false);
+        toast({
+          title: "Error",
+          description: "Failed to add todo. Please try again later.",
+          variant: "destructive",
+        });
+      },
     });
   const [value, toggle, setValue] = useToggle();
 
