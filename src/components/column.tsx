@@ -1,9 +1,9 @@
+import { AddTodo } from "@/components/add-todo";
 import TodoCard from "@/components/todo-card";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useBoardStore } from "@/store/board-store";
 import { type Todos } from "@prisma/client";
-import { DragHandleDots2Icon, PlusCircledIcon } from "@radix-ui/react-icons";
+import { DragHandleDots2Icon } from "@radix-ui/react-icons";
 import { type FC } from "react";
 import { Draggable, Droppable } from "react-beautiful-dnd";
 import { useDebounce } from "usehooks-ts";
@@ -107,9 +107,7 @@ const Column: FC<ColumnProps> = ({ id, todos, index, refetchBoardData }) => {
                   {provided.placeholder}
 
                   <div className="flex items-end justify-end py-4">
-                    <Button variant="outline" size="icon">
-                      <PlusCircledIcon className="h-5 w-5 text-green-500 hover:text-green-600" />
-                    </Button>
+                    <AddTodo name={id} />
                   </div>
                 </div>
               </div>
