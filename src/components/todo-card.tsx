@@ -111,9 +111,9 @@ const TodoCard: FC<TodoCardProps> = ({
             alt={todo.title}
             height={200}
             width={400}
-            className="h-52 w-full rounded-b-md bg-zinc-200 object-cover"
+            className="h-52 w-full rounded-b-md bg-zinc-100 object-cover"
             unoptimized
-            blurDataURL={todo.blurHash as string}
+            blurDataURL={todo.blurHash!}
             placeholder="blur"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 60vw"
             loader={({ src }) => src}
