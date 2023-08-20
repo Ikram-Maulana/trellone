@@ -39,10 +39,11 @@ export const todosRouter = createTRPCRouter({
       z.object({
         title: z.string(),
         status: z.string(),
+        image: z.string().optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const { title, status } = input;
+      const { title, status, image } = input;
       const { id } = ctx.session.user;
 
       const statudId = await prisma.status.findUnique({
@@ -64,6 +65,7 @@ export const todosRouter = createTRPCRouter({
       const newTodo = await prisma.todos.create({
         data: {
           title,
+          image,
           statusId: statudId.id,
           userId: id,
         },
