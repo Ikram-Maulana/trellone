@@ -15,6 +15,7 @@ import { useBoardStore } from "@/store/board-store";
 import { api } from "@/utils/api";
 import { type Todos } from "@prisma/client";
 import { CrossCircledIcon, DragHandleDots2Icon } from "@radix-ui/react-icons";
+import Image from "next/image";
 import { type FC } from "react";
 import {
   type DraggableProvidedDragHandleProps,
@@ -103,7 +104,22 @@ const TodoCard: FC<TodoCardProps> = ({
         </div>
       </div>
 
-      {/* Add image here ... */}
+      {todo.image && (
+        <div className="h-full w-full rounded-b-md">
+          <Image
+            src={todo.image}
+            alt={todo.title}
+            height={200}
+            width={400}
+            className="w-full rounded-b-md bg-gray-400 object-contain"
+            unoptimized
+            blurDataURL="00E.IY"
+            placeholder="blur"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 60vw"
+            loader={({ src }) => src}
+          />
+        </div>
+      )}
     </div>
   );
 };
