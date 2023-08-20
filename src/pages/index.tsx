@@ -33,7 +33,7 @@ export default function Home() {
               alt="Thought Catalog"
               height={620}
               width={930}
-              className="mx-auto h-auto w-full rounded-xl object-cover"
+              className="mx-auto h-auto w-full rounded-xl bg-zinc-100 object-cover"
               unoptimized
               blurDataURL="00E.IY"
               placeholder="blur"
