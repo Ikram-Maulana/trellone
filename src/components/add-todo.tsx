@@ -71,8 +71,16 @@ export function AddTodo({ name }: { name: string }) {
     api.todos.addTodo.useMutation({
       onSuccess: (data) => {
         const { statusName } = data.data;
-        const { id, title, statusId, userId, image, createdAt, updatedAt } =
-          data.data.newTodo;
+        const {
+          id,
+          title,
+          statusId,
+          userId,
+          image,
+          blurHash,
+          createdAt,
+          updatedAt,
+        } = data.data.newTodo;
 
         const newColumns = new Map(board?.columns);
         const newTodo = {
@@ -80,6 +88,7 @@ export function AddTodo({ name }: { name: string }) {
           title,
           statusId,
           image,
+          blurHash,
           userId,
           createdAt,
           updatedAt,
