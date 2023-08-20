@@ -18,6 +18,11 @@ const config = {
     locales: ["en"],
     defaultLocale: "en",
   },
+
+  // Uploadthing flags matters
+  experimental: {
+    esmExternals: false,
+  },
 };
 
 export default config;

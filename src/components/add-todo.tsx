@@ -25,6 +25,7 @@ import { toast } from "@/components/ui/use-toast";
 import { cn } from "@/lib/utils";
 import { useBoardStore } from "@/store/board-store";
 import { api } from "@/utils/api";
+import { UploadButton } from "@/utils/uploadthing";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   ExclamationTriangleIcon,
@@ -45,6 +46,7 @@ const idToColumnText: Record<string, string> = {
 const formSchema = z.object({
   title: z.string().nonempty("Please enter a title for your task."),
   status: z.string().nonempty("Please select a status for your task."),
+  image: z.string().optional(),
 });
 
 export function AddTodo({ name }: { name: string }) {
@@ -55,6 +57,7 @@ export function AddTodo({ name }: { name: string }) {
     defaultValues: {
       title: "",
       status: name,
+      image: "",
     },
   });
   const {
@@ -134,7 +137,6 @@ export function AddTodo({ name }: { name: string }) {
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Title</FormLabel>
                   <FormControl>
                     <Input placeholder="Enter a task here..." {...field} />
                   </FormControl>
@@ -144,7 +146,6 @@ export function AddTodo({ name }: { name: string }) {
             />
             {isLoadingStatuses && (
               <div className="space-y-2">
-                <FormLabel>Status</FormLabel>
                 <div className="flex flex-col gap-2 space-y-1">
                   {Array.from({ length: 3 }).map((_, index) => (
                     <Skeleton
@@ -157,7 +158,6 @@ export function AddTodo({ name }: { name: string }) {
             )}
             {isErrorStatuses && (
               <div className="space-y-2">
-                <FormLabel>Status</FormLabel>
                 <Alert variant="destructive">
                   <ExclamationTriangleIcon className="h-4 w-4" />
                   <AlertTitle>Error</AlertTitle>
@@ -169,7 +169,6 @@ export function AddTodo({ name }: { name: string }) {
             )}
             {!isLoadingStatuses && !isErrorStatuses && !statuses && (
               <div className="space-y-2">
-                <FormLabel>Status</FormLabel>
                 <Alert
                   className={cn(
                     "border-amber-500/50 text-amber-500 dark:border-amber-500 [&>svg]:text-amber-500",
@@ -189,7 +188,6 @@ export function AddTodo({ name }: { name: string }) {
                 name="status"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Status</FormLabel>
                     <FormControl>
                       <RadioGroup
                         onValueChange={field.onChange}
@@ -218,6 +216,36 @@ export function AddTodo({ name }: { name: string }) {
                 )}
               />
             )}
+            <FormField
+              control={form.control}
+              name="image"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <UploadButton
+                      {...field}
+                      className={cn("rounded-lg border bg-card pb-4 pt-2")}
+                      endpoint="imageUploader"
+                      onClientUploadComplete={(res) => {
+                        form.setValue("image", res?.[0]?.fileUrl);
+                        toast({
+                          title: "Success",
+                          description: "Image uploaded successfully.",
+                        });
+                      }}
+                      onUploadError={(error: Error) => {
+                        toast({
+                          title: "Error",
+                          description: error.message,
+                          variant: "destructive",
+                        });
+                      }}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <DialogFooter>
               <Button type="submit" disabled={isLoadingAddTodo}>
                 {isLoadingAddTodo && (
