@@ -1,5 +1,5 @@
+import BlurImage from "@/components/blur-image";
 import Layout from "@/components/guest/layout";
-import Image from "next/image";
 import Link from "next/link";
 
 export default function Home() {
@@ -27,18 +27,18 @@ export default function Home() {
               </p>
             </div>
           </div>
-          <div className="relative m-auto max-w-5xl">
-            <Image
+          <div className="relative m-auto max-w-5xl overflow-hidden rounded-xl">
+            <BlurImage
               src="https://images.unsplash.com/photo-1488190211105-8b0e65b80b4e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=930&q=80"
               alt="Thought Catalog"
-              className="mx-auto h-auto w-full rounded-xl bg-gray-400 dark:bg-slate-700"
+              height={620}
+              width={930}
+              className="mx-auto h-auto w-full rounded-xl object-cover"
               unoptimized
               blurDataURL="00E.IY"
               placeholder="blur"
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 60vw"
               loader={({ src }) => src}
-              width={930}
-              height={620}
             />
           </div>
         </div>

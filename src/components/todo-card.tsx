@@ -1,3 +1,4 @@
+import BlurImage from "@/components/blur-image";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,7 +16,6 @@ import { useBoardStore } from "@/store/board-store";
 import { api } from "@/utils/api";
 import { type Todos } from "@prisma/client";
 import { CrossCircledIcon, DragHandleDots2Icon } from "@radix-ui/react-icons";
-import Image from "next/image";
 import { type FC } from "react";
 import {
   type DraggableProvidedDragHandleProps,
@@ -105,15 +105,15 @@ const TodoCard: FC<TodoCardProps> = ({
       </div>
 
       {todo.image && (
-        <div className="h-full w-full rounded-b-md">
-          <Image
+        <div className="h-full w-full overflow-hidden rounded-b-md">
+          <BlurImage
             src={todo.image}
             alt={todo.title}
             height={200}
             width={400}
-            className="w-full rounded-b-md bg-gray-400 object-contain"
+            className="h-52 w-full rounded-b-md bg-zinc-200 object-cover"
             unoptimized
-            blurDataURL="00E.IY"
+            blurDataURL={todo.blurHash as string}
             placeholder="blur"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 60vw"
             loader={({ src }) => src}

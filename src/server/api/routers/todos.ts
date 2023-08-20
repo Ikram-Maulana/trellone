@@ -3,6 +3,7 @@ import { prisma } from "@/server/db";
 import { type Todos } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
+import { blurhashFromURL, type IOutput } from "blurhash-from-url";
 
 export const todosRouter = createTRPCRouter({
   getBoardByStatus: protectedProcedure.query(async ({ ctx }) => {
@@ -62,10 +63,30 @@ export const todosRouter = createTRPCRouter({
         });
       }
 
+      let blurhashImage: IOutput | null = null;
+      if (image) {
+        blurhashImage = await blurhashFromURL(image);
+        const newTodo = await prisma.todos.create({
+          data: {
+            title,
+            image,
+            blurHash: blurhashImage.encoded,
+            statusId: statudId.id,
+            userId: id,
+          },
+        });
+        return {
+          error: null,
+          data: {
+            statusName: status,
+            newTodo,
+          },
+        };
+      }
+
       const newTodo = await prisma.todos.create({
         data: {
           title,
-          image,
           statusId: statudId.id,
           userId: id,
         },
