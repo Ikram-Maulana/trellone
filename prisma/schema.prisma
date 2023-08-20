@@ -20,6 +20,7 @@ model Todos {
     status    Status   @relation(fields: [statusId], references: [id])
     statusId  String
     image     String?
+    blurHash  String?
     user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
     userId    String
     createdAt DateTime @default(now())
