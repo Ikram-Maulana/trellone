@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
+import BlurImage from "@/components/blur-image";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
@@ -33,6 +34,7 @@ import {
   ReloadIcon,
 } from "@radix-ui/react-icons";
 import { useSession } from "next-auth/react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useToggle } from "usehooks-ts";
 import { z } from "zod";
@@ -52,6 +54,7 @@ const formSchema = z.object({
 export function AddTodo({ name }: { name: string }) {
   const { data: sessionData } = useSession();
   const { board, setBoardState } = useBoardStore();
+  const [previewImage, setPreviewImage] = useState<string | undefined>();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -127,7 +130,14 @@ export function AddTodo({ name }: { name: string }) {
 
   return (
     <Dialog open={value} onOpenChange={setValue}>
-      <DialogTrigger onClick={toggle} asChild>
+      <DialogTrigger
+        onClick={() => {
+          toggle();
+          form.reset();
+          setPreviewImage(undefined);
+        }}
+        asChild
+      >
         <Button variant="outline" size="icon">
           <PlusCircledIcon className="h-5 w-5 text-green-500 hover:text-green-600" />
         </Button>
@@ -225,36 +235,55 @@ export function AddTodo({ name }: { name: string }) {
                 )}
               />
             )}
-            <FormField
-              control={form.control}
-              name="image"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <UploadButton
-                      {...field}
-                      className={cn("rounded-lg border bg-card pb-4 pt-2")}
-                      endpoint="imageUploader"
-                      onClientUploadComplete={(res) => {
-                        form.setValue("image", res?.[0]?.fileUrl);
-                        toast({
-                          title: "Success",
-                          description: "Image uploaded successfully.",
-                        });
-                      }}
-                      onUploadError={(error: Error) => {
-                        toast({
-                          title: "Error",
-                          description: error.message,
-                          variant: "destructive",
-                        });
-                      }}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {!previewImage && (
+              <FormField
+                control={form.control}
+                name="image"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <UploadButton
+                        {...field}
+                        className={cn("rounded-lg border bg-card pb-4 pt-2")}
+                        endpoint="imageUploader"
+                        onClientUploadComplete={(res) => {
+                          form.setValue("image", res?.[0]?.fileUrl);
+                          setPreviewImage(res?.[0]?.fileUrl);
+                          toast({
+                            title: "Success",
+                            description: "Image uploaded successfully.",
+                          });
+                        }}
+                        onUploadError={(error: Error) => {
+                          toast({
+                            title: "Error",
+                            description: error.message,
+                            variant: "destructive",
+                          });
+                        }}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+            {previewImage && (
+              <div className="h-auto w-full overflow-hidden rounded-lg">
+                <BlurImage
+                  src={previewImage}
+                  alt="Preview Image"
+                  width={200}
+                  height={200}
+                  className="mt-2 h-36 w-full cursor-not-allowed rounded-lg bg-zinc-100 object-cover filter transition-all duration-150 hover:grayscale lg:h-44"
+                  unoptimized
+                  blurDataURL="L6PZfSi_.AyE_3t7t7R**0o#DgR4"
+                  placeholder="blur"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 60vw"
+                  loader={({ src }) => src}
+                />
+              </div>
+            )}
             <DialogFooter>
               <Button type="submit" disabled={isLoadingAddTodo}>
                 {isLoadingAddTodo && (
