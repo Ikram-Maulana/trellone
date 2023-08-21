@@ -30,6 +30,7 @@ model Todos {
 model Status {
     id        String   @id @default(cuid())
     name      String
+    position  Int
     todos     Todos[]
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
