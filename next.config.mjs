@@ -6,7 +6,8 @@ await import("./src/env.mjs");
 
 /** @type {import("next").NextConfig} */
 const config = {
-  reactStrictMode: true,
+  // Disable for React Beautiful DnD
+  reactStrictMode: false,
 
   /**
    * If you are using `appDir` then you must comment the below `i18n` config out.
@@ -16,6 +17,11 @@ const config = {
   i18n: {
     locales: ["en"],
     defaultLocale: "en",
+  },
+
+  // Uploadthing flags matters
+  experimental: {
+    esmExternals: false,
   },
 };
 
