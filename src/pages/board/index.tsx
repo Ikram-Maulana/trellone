@@ -12,8 +12,8 @@ import { type GetServerSideProps } from "next";
 import { useSession } from "next-auth/react";
 import {
   DragDropContext,
-  type DropResult,
   Droppable,
+  type DropResult,
 } from "react-beautiful-dnd";
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
@@ -49,11 +49,25 @@ export default function Board() {
     },
   });
 
-  const { mutate: moveTodo } = api.todos.moveTodo.useMutation({
+  const { mutate: moveBoard } = api.todos.moveBoard.useMutation({
     onError: async () => {
       await refetchBoardData();
     },
   });
+
+  const { mutate: moveTodoSameColumn } =
+    api.todos.moveTodoSameColumn.useMutation({
+      onError: async () => {
+        await refetchBoardData();
+      },
+    });
+
+  const { mutate: moveTodoDiffentColumn } =
+    api.todos.moveTodoDiffentColumn.useMutation({
+      onError: async () => {
+        await refetchBoardData();
+      },
+    });
 
   const handleOnDragEnd = (result: DropResult) => {
     const { destination, source, type } = result;
@@ -72,6 +86,13 @@ export default function Board() {
 
       entries.splice(destination.index, 0, removed);
       const rearrangedColumns = new Map(entries);
+
+      moveBoard(
+        entries.map((entry, index) => ({
+          id: entry[1].id,
+          newPosition: index,
+        })),
+      );
 
       setBoardState({
         ...board,
@@ -122,6 +143,13 @@ export default function Board() {
       const newColumns = new Map(columns);
       newColumns.set(newCol.id, newCol);
 
+      moveTodoSameColumn(
+        newTodos.map((todo, index) => ({
+          id: todo.id,
+          newPosition: index,
+        })),
+      );
+
       setBoardState({
         ...board,
         columns: newColumns,
@@ -142,9 +170,16 @@ export default function Board() {
         todos: finishTodos,
       });
 
-      moveTodo({
-        todo: todoMoved,
-        columnId: finishCol.id,
+      moveTodoDiffentColumn({
+        sourceTodo: newTodos.map((todo, index) => ({
+          id: todo.id,
+          newPosition: index,
+        })),
+        destinationTodo: finishTodos.map((todo, index) => ({
+          id: todo.id,
+          newPosition: index,
+        })),
+        destinationColumnName: finishCol.id,
       });
 
       setBoardState({

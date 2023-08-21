@@ -21,6 +21,7 @@ model Todos {
     statusId  String
     image     String?
     blurHash  String?
+    position  Int
     user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
     userId    String
     createdAt DateTime @default(now())
@@ -30,11 +31,14 @@ model Todos {
 model Status {
     id        String   @id @default(cuid())
     name      String
+    position  Int
+    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId    String
     todos     Todos[]
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
-    @@unique([name])
+    @@unique([name, userId])
 }
 
 // Necessary for Next auth
@@ -72,6 +76,7 @@ model User {
     image         String?
     accounts      Account[]
     sessions      Session[]
+    status        Status[]
     todos         Todos[]
 }
 

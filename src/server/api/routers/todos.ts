@@ -17,22 +17,83 @@ export const todosRouter = createTRPCRouter({
           },
         },
       },
+      orderBy: {
+        position: "asc",
+      },
+      where: {
+        userId: ctx.session.user.id,
+      },
     });
 
-    const todosMap = todos.reduce((map, todo) => {
-      map.set(todo.name, {
-        id: todo.id,
-        todos: todo.todos,
+    if (!todos || todos.length === 0) {
+      await prisma.status.createMany({
+        data: [
+          {
+            name: "todo",
+            position: 0,
+            userId: ctx.session.user.id,
+          },
+          {
+            name: "inprogress",
+            position: 1,
+            userId: ctx.session.user.id,
+          },
+          {
+            name: "done",
+            position: 2,
+            userId: ctx.session.user.id,
+          },
+        ],
       });
 
-      return map;
-    }, new Map<string, { id: string; todos: Todos[] }>());
+      const newTodos = await prisma.status.findMany({
+        select: {
+          id: true,
+          name: true,
+          todos: {
+            where: {
+              userId: ctx.session.user.id,
+            },
+          },
+        },
+        orderBy: {
+          position: "asc",
+        },
+        where: {
+          userId: ctx.session.user.id,
+        },
+      });
 
-    const board = {
-      columns: todosMap,
-    };
+      const todosMap = newTodos.reduce((map, todo) => {
+        map.set(todo.name, {
+          id: todo.id,
+          todos: todo.todos,
+        });
 
-    return board;
+        return map;
+      }, new Map<string, { id: string; todos: Todos[] }>());
+
+      const board = {
+        columns: todosMap,
+      };
+
+      return board;
+    } else {
+      const todosMap = todos.reduce((map, todo) => {
+        map.set(todo.name, {
+          id: todo.id,
+          todos: todo.todos,
+        });
+
+        return map;
+      }, new Map<string, { id: string; todos: Todos[] }>());
+
+      const board = {
+        columns: todosMap,
+      };
+
+      return board;
+    }
   }),
 
   addTodo: protectedProcedure
@@ -47,16 +108,32 @@ export const todosRouter = createTRPCRouter({
       const { title, status, image } = input;
       const { id } = ctx.session.user;
 
-      const statudId = await prisma.status.findUnique({
-        where: {
-          name: status,
-        },
-        select: {
-          id: true,
-        },
-      });
+      const [statusId, lastTodoItem] = await prisma.$transaction([
+        prisma.status.findUnique({
+          where: {
+            name_userId: {
+              name: status,
+              userId: id,
+            },
+          },
+          select: {
+            id: true,
+          },
+        }),
+        prisma.todos.findFirst({
+          orderBy: {
+            position: "desc",
+          },
+          where: {
+            status: {
+              name: status,
+            },
+            userId: id,
+          },
+        }),
+      ]);
 
-      if (!statudId) {
+      if (!statusId) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: "Status not found",
@@ -71,7 +148,8 @@ export const todosRouter = createTRPCRouter({
             title,
             image,
             blurHash: blurhashImage.encoded,
-            statusId: statudId.id,
+            statusId: statusId.id,
+            position: lastTodoItem ? lastTodoItem.position + 1 : 0,
             userId: id,
           },
         });
@@ -87,7 +165,8 @@ export const todosRouter = createTRPCRouter({
       const newTodo = await prisma.todos.create({
         data: {
           title,
-          statusId: statudId.id,
+          statusId: statusId.id,
+          position: lastTodoItem ? lastTodoItem.position + 1 : 0,
           userId: id,
         },
       });
@@ -101,55 +180,124 @@ export const todosRouter = createTRPCRouter({
       };
     }),
 
-  moveTodo: protectedProcedure
+  moveTodoSameColumn: protectedProcedure
+    .input(
+      z.array(
+        z.object({
+          id: z.string(),
+          newPosition: z.number(),
+        }),
+      ),
+    )
+    .mutation(async ({ ctx, input }) => {
+      await prisma.$transaction(
+        input.map((todo) =>
+          prisma.todos.update({
+            where: {
+              id: todo.id,
+              userId: ctx.session.user.id,
+            },
+            data: {
+              position: todo.newPosition,
+            },
+          }),
+        ),
+      );
+    }),
+
+  moveTodoDiffentColumn: protectedProcedure
     .input(
       z.object({
-        todo: z.object({
-          id: z.string(),
-          title: z.string(),
-          statusId: z.string(),
-          image: z.string().nullable(),
-          userId: z.string(),
-          createdAt: z.date(),
-          updatedAt: z.date(),
-        }),
-        columnId: z.string(),
+        sourceTodo: z.array(
+          z.object({
+            id: z.string(),
+            newPosition: z.number(),
+          }),
+        ),
+        destinationTodo: z.array(
+          z.object({
+            id: z.string(),
+            newPosition: z.number(),
+          }),
+        ),
+        destinationColumnName: z.string(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const { todo, columnId } = input;
-      const { id } = ctx.session.user;
+      const { sourceTodo, destinationTodo, destinationColumnName } = input;
 
-      const statudId = await prisma.status.findUnique({
+      const statusId = await prisma.status.findUnique({
         where: {
-          name: columnId,
+          name_userId: {
+            name: destinationColumnName,
+            userId: ctx.session.user.id,
+          },
         },
         select: {
           id: true,
         },
       });
 
-      if (!statudId) {
+      if (!statusId) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: "Status not found",
         });
       }
 
-      const updatedTodo = await prisma.todos.update({
-        where: {
-          id: todo.id,
-          userId: id,
-        },
-        data: {
-          statusId: statudId.id,
-        },
-      });
+      await prisma.$transaction(
+        destinationTodo.map((todo) =>
+          prisma.todos.update({
+            where: {
+              id: todo.id,
+              userId: ctx.session.user.id,
+            },
+            data: {
+              position: todo.newPosition,
+              statusId: statusId.id,
+            },
+          }),
+        ),
+      );
 
-      return {
-        error: null,
-        data: updatedTodo,
-      };
+      await prisma.$transaction(
+        sourceTodo.map((todo) =>
+          prisma.todos.update({
+            where: {
+              id: todo.id,
+              userId: ctx.session.user.id,
+            },
+            data: {
+              position: todo.newPosition,
+            },
+          }),
+        ),
+      );
+    }),
+
+  moveBoard: protectedProcedure
+    .input(
+      z.array(
+        z.object({
+          id: z.string(),
+          newPosition: z.number(),
+        }),
+      ),
+    )
+    .mutation(async ({ ctx, input }) => {
+      await prisma.$transaction(
+        input.map((status) =>
+          prisma.status.update({
+            where: {
+              id: status.id,
+              userId: ctx.session.user.id,
+            },
+            data: {
+              position: status.newPosition,
+            },
+          }),
+        ),
+      );
     }),
 
   deleteTodo: protectedProcedure

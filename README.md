@@ -1,28 +1,56 @@
-# Create T3 App
+# Trellone
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+Trellone is a simple version of Trello clone built with Next.js, TRPC, and TailwindCSS. This project uses the template from T3 Stack.
 
-## What's next? How do I make an app with this?
+Live example hosted on Vercel: [https://trellone.vercel.app/](https://trellone.vercel.app/)
 
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
+![Trellone](public/trellone.png)
 
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
+## 🔑 Getting Google Client ID and Secret
 
-- [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
-- [Prisma](https://prisma.io)
-- [Tailwind CSS](https://tailwindcss.com)
-- [tRPC](https://trpc.io)
+To get Google Client ID and Secret, you need to create a new project on [Google Cloud Platform](https://console.cloud.google.com/). Then, go to [Google API Console](https://console.cloud.google.com/apis/credentials) and create new OAuth Client ID. After that, you can copy your Client ID and Secret.
 
-## Learn More
+## 🖥️ Running Locally
 
-To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
+1. Clone this repo
 
-- [Documentation](https://create.t3.gg/)
-- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
+   ```bash
+   https://github.com/Ikram-Maulana/trellone.git
+   ```
 
-You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
+2. Install dependencies
 
-## How do I deploy this?
+   ```bash
+   pnpm install
+   ```
 
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+3. Add your `DATABASE_URL`, `NEXTAUTH_SECRET`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `UPLOADTHING_SECRET` and `UPLOADTHING_APP_ID` to your `.env` file
+
+   ```bash
+   DATABASE_URL=
+   NEXTAUTH_SECRET=
+   GOOGLE_CLIENT_ID=
+   GOOGLE_CLIENT_SECRET=
+   UPLOADTHING_SECRET=
+   UPLOADTHING_APP_ID=
+   ```
+
+4. Run the development server
+
+   ```bash
+    pnpm dev
+   ```
+
+5. Open [http://localhost:3000](http://localhost:3000) with your browser to see the result
+
+## 🚀 Deploy on Vercel
+
+1. Fork this repo
+
+2. Create new project on Vercel
+
+3. Connect your repo to Vercel
+
+4. Add your `DATABASE_URL`, `NEXTAUTH_SECRET`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `UPLOADTHING_SECRET` and `UPLOADTHING_APP_ID` to your Vercel project environment variables
+
+5. Deploy your project
