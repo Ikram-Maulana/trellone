@@ -205,56 +205,74 @@ export const todosRouter = createTRPCRouter({
       );
     }),
 
-  moveTodo: protectedProcedure
+  moveTodoDiffentColumn: protectedProcedure
     .input(
       z.object({
-        todo: z.object({
-          id: z.string(),
-          title: z.string(),
-          statusId: z.string(),
-          image: z.string().nullable(),
-          userId: z.string(),
-          createdAt: z.date(),
-          updatedAt: z.date(),
-        }),
-        columnId: z.string(),
+        sourceTodo: z.array(
+          z.object({
+            id: z.string(),
+            newPosition: z.number(),
+          }),
+        ),
+        destinationTodo: z.array(
+          z.object({
+            id: z.string(),
+            newPosition: z.number(),
+          }),
+        ),
+        destinationColumnName: z.string(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const { todo, columnId } = input;
-      const { id } = ctx.session.user;
+      const { sourceTodo, destinationTodo, destinationColumnName } = input;
 
-      const statudId = await prisma.status.findUnique({
+      const statusId = await prisma.status.findUnique({
         where: {
-          id: columnId,
-          userId: id,
+          name_userId: {
+            name: destinationColumnName,
+            userId: ctx.session.user.id,
+          },
         },
         select: {
           id: true,
         },
       });
 
-      if (!statudId) {
+      if (!statusId) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: "Status not found",
         });
       }
 
-      const updatedTodo = await prisma.todos.update({
-        where: {
-          id: todo.id,
-          userId: id,
-        },
-        data: {
-          statusId: statudId.id,
-        },
-      });
+      await prisma.$transaction(
+        destinationTodo.map((todo) =>
+          prisma.todos.update({
+            where: {
+              id: todo.id,
+              userId: ctx.session.user.id,
+            },
+            data: {
+              position: todo.newPosition,
+              statusId: statusId.id,
+            },
+          }),
+        ),
+      );
 
-      return {
-        error: null,
-        data: updatedTodo,
-      };
+      await prisma.$transaction(
+        sourceTodo.map((todo) =>
+          prisma.todos.update({
+            where: {
+              id: todo.id,
+              userId: ctx.session.user.id,
+            },
+            data: {
+              position: todo.newPosition,
+            },
+          }),
+        ),
+      );
     }),
 
   moveBoard: protectedProcedure
