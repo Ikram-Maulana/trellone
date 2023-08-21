@@ -180,6 +180,31 @@ export const todosRouter = createTRPCRouter({
       };
     }),
 
+  moveTodoSameColumn: protectedProcedure
+    .input(
+      z.array(
+        z.object({
+          id: z.string(),
+          newPosition: z.number(),
+        }),
+      ),
+    )
+    .mutation(async ({ ctx, input }) => {
+      await prisma.$transaction(
+        input.map((todo) =>
+          prisma.todos.update({
+            where: {
+              id: todo.id,
+              userId: ctx.session.user.id,
+            },
+            data: {
+              position: todo.newPosition,
+            },
+          }),
+        ),
+      );
+    }),
+
   moveTodo: protectedProcedure
     .input(
       z.object({
