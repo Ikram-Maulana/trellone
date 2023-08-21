@@ -17,6 +17,9 @@ export const todosRouter = createTRPCRouter({
           },
         },
       },
+      orderBy: {
+        position: "asc",
+      },
     });
 
     const todosMap = todos.reduce((map, todo) => {
@@ -150,6 +153,30 @@ export const todosRouter = createTRPCRouter({
         error: null,
         data: updatedTodo,
       };
+    }),
+
+  moveBoard: protectedProcedure
+    .input(
+      z.array(
+        z.object({
+          id: z.string(),
+          newPosition: z.number(),
+        }),
+      ),
+    )
+    .mutation(async ({ input }) => {
+      await prisma.$transaction(
+        input.map((status) =>
+          prisma.status.update({
+            where: {
+              id: status.id,
+            },
+            data: {
+              position: status.newPosition,
+            },
+          }),
+        ),
+      );
     }),
 
   deleteTodo: protectedProcedure
