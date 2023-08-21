@@ -29,7 +29,7 @@ const Login: FC = () => {
   return (
     <>
       <Head>
-        <title>Login | ${SiteMetadata.name}</title>
+        <title>Login | {SiteMetadata.name}</title>
         <meta name="description" content={SiteMetadata.description} />
         <link rel="icon" href="/favicon.ico" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
