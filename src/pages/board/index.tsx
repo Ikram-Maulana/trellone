@@ -55,6 +55,13 @@ export default function Board() {
     },
   });
 
+  const { mutate: moveTodoSameColumn } =
+    api.todos.moveTodoSameColumn.useMutation({
+      onError: async () => {
+        await refetchBoardData();
+      },
+    });
+
   const { mutate: moveTodo } = api.todos.moveTodo.useMutation({
     onError: async () => {
       await refetchBoardData();
@@ -134,6 +141,13 @@ export default function Board() {
       };
       const newColumns = new Map(columns);
       newColumns.set(newCol.id, newCol);
+
+      moveTodoSameColumn(
+        newTodos.map((todo, index) => ({
+          id: todo.id,
+          newPosition: index,
+        })),
+      );
 
       setBoardState({
         ...board,
