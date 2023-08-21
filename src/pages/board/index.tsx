@@ -12,8 +12,8 @@ import { type GetServerSideProps } from "next";
 import { useSession } from "next-auth/react";
 import {
   DragDropContext,
-  type DropResult,
   Droppable,
+  type DropResult,
 } from "react-beautiful-dnd";
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
@@ -49,6 +49,12 @@ export default function Board() {
     },
   });
 
+  const { mutate: moveBoard } = api.todos.moveBoard.useMutation({
+    onError: async () => {
+      await refetchBoardData();
+    },
+  });
+
   const { mutate: moveTodo } = api.todos.moveTodo.useMutation({
     onError: async () => {
       await refetchBoardData();
@@ -72,6 +78,13 @@ export default function Board() {
 
       entries.splice(destination.index, 0, removed);
       const rearrangedColumns = new Map(entries);
+
+      moveBoard(
+        entries.map((entry, index) => ({
+          id: entry[1].id,
+          newPosition: index,
+        })),
+      );
 
       setBoardState({
         ...board,
