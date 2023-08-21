@@ -108,17 +108,32 @@ export const todosRouter = createTRPCRouter({
       const { title, status, image } = input;
       const { id } = ctx.session.user;
 
-      const statudId = await prisma.status.findUnique({
-        where: {
-          name: status,
-          userId: id,
-        },
-        select: {
-          id: true,
-        },
-      });
+      const [statusId, lastTodoItem] = await prisma.$transaction([
+        prisma.status.findUnique({
+          where: {
+            name_userId: {
+              name: status,
+              userId: id,
+            },
+          },
+          select: {
+            id: true,
+          },
+        }),
+        prisma.todos.findFirst({
+          orderBy: {
+            position: "desc",
+          },
+          where: {
+            status: {
+              name: status,
+            },
+            userId: id,
+          },
+        }),
+      ]);
 
-      if (!statudId) {
+      if (!statusId) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: "Status not found",
@@ -133,7 +148,8 @@ export const todosRouter = createTRPCRouter({
             title,
             image,
             blurHash: blurhashImage.encoded,
-            statusId: statudId.id,
+            statusId: statusId.id,
+            position: lastTodoItem ? lastTodoItem.position + 1 : 0,
             userId: id,
           },
         });
@@ -149,7 +165,8 @@ export const todosRouter = createTRPCRouter({
       const newTodo = await prisma.todos.create({
         data: {
           title,
-          statusId: statudId.id,
+          statusId: statusId.id,
+          position: lastTodoItem ? lastTodoItem.position + 1 : 0,
           userId: id,
         },
       });
