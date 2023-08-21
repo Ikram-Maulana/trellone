@@ -20,22 +20,80 @@ export const todosRouter = createTRPCRouter({
       orderBy: {
         position: "asc",
       },
+      where: {
+        userId: ctx.session.user.id,
+      },
     });
 
-    const todosMap = todos.reduce((map, todo) => {
-      map.set(todo.name, {
-        id: todo.id,
-        todos: todo.todos,
+    if (!todos || todos.length === 0) {
+      await prisma.status.createMany({
+        data: [
+          {
+            name: "todo",
+            position: 0,
+            userId: ctx.session.user.id,
+          },
+          {
+            name: "inprogress",
+            position: 1,
+            userId: ctx.session.user.id,
+          },
+          {
+            name: "done",
+            position: 2,
+            userId: ctx.session.user.id,
+          },
+        ],
       });
 
-      return map;
-    }, new Map<string, { id: string; todos: Todos[] }>());
+      const newTodos = await prisma.status.findMany({
+        select: {
+          id: true,
+          name: true,
+          todos: {
+            where: {
+              userId: ctx.session.user.id,
+            },
+          },
+        },
+        orderBy: {
+          position: "asc",
+        },
+        where: {
+          userId: ctx.session.user.id,
+        },
+      });
 
-    const board = {
-      columns: todosMap,
-    };
+      const todosMap = newTodos.reduce((map, todo) => {
+        map.set(todo.name, {
+          id: todo.id,
+          todos: todo.todos,
+        });
 
-    return board;
+        return map;
+      }, new Map<string, { id: string; todos: Todos[] }>());
+
+      const board = {
+        columns: todosMap,
+      };
+
+      return board;
+    } else {
+      const todosMap = todos.reduce((map, todo) => {
+        map.set(todo.name, {
+          id: todo.id,
+          todos: todo.todos,
+        });
+
+        return map;
+      }, new Map<string, { id: string; todos: Todos[] }>());
+
+      const board = {
+        columns: todosMap,
+      };
+
+      return board;
+    }
   }),
 
   addTodo: protectedProcedure
@@ -53,6 +111,7 @@ export const todosRouter = createTRPCRouter({
       const statudId = await prisma.status.findUnique({
         where: {
           name: status,
+          userId: id,
         },
         select: {
           id: true,
@@ -125,7 +184,8 @@ export const todosRouter = createTRPCRouter({
 
       const statudId = await prisma.status.findUnique({
         where: {
-          name: columnId,
+          id: columnId,
+          userId: id,
         },
         select: {
           id: true,
@@ -164,12 +224,13 @@ export const todosRouter = createTRPCRouter({
         }),
       ),
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
       await prisma.$transaction(
         input.map((status) =>
           prisma.status.update({
             where: {
               id: status.id,
+              userId: ctx.session.user.id,
             },
             data: {
               position: status.newPosition,
