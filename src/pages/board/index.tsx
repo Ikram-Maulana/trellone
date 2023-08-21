@@ -62,11 +62,12 @@ export default function Board() {
       },
     });
 
-  const { mutate: moveTodo } = api.todos.moveTodo.useMutation({
-    onError: async () => {
-      await refetchBoardData();
-    },
-  });
+  const { mutate: moveTodoDiffentColumn } =
+    api.todos.moveTodoDiffentColumn.useMutation({
+      onError: async () => {
+        await refetchBoardData();
+      },
+    });
 
   const handleOnDragEnd = (result: DropResult) => {
     const { destination, source, type } = result;
@@ -169,9 +170,16 @@ export default function Board() {
         todos: finishTodos,
       });
 
-      moveTodo({
-        todo: todoMoved,
-        columnId: finishCol.id,
+      moveTodoDiffentColumn({
+        sourceTodo: newTodos.map((todo, index) => ({
+          id: todo.id,
+          newPosition: index,
+        })),
+        destinationTodo: finishTodos.map((todo, index) => ({
+          id: todo.id,
+          newPosition: index,
+        })),
+        destinationColumnName: finishCol.id,
       });
 
       setBoardState({
