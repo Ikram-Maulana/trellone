@@ -10,11 +10,13 @@ import { api } from "@/utils/api";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 import { type GetServerSideProps } from "next";
 import { useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
 import {
   DragDropContext,
   Droppable,
   type DropResult,
 } from "react-beautiful-dnd";
+import { useWindowSize } from "usehooks-ts";
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const session = await getServerAuthSession(ctx);
@@ -37,6 +39,8 @@ export default function Board() {
   const { data: sessionData } = useSession();
   const { board, setBoardState, searchString, setSearchString } =
     useBoardStore();
+    const [direction, setDirection] = useState<"horizontal" | "vertical">("horizontal")
+    const {width} = useWindowSize()
   const {
     data: boardData,
     isLoading: isLoadingBoardData,
@@ -189,6 +193,14 @@ export default function Board() {
     }
   };
 
+  useEffect(() => {
+    if (width > 768) {
+      setDirection("horizontal")
+    } else {
+      setDirection("vertical")
+    }
+  }, [width])
+
   return (
     <section id="board" className="container">
       <div className="mx-auto max-w-7xl px-4 md:px-6">
@@ -250,7 +262,7 @@ export default function Board() {
             <DragDropContext onDragEnd={handleOnDragEnd}>
               <Droppable
                 droppableId="board"
-                direction="horizontal"
+                direction={direction}
                 type="column"
               >
                 {(provided) => (
