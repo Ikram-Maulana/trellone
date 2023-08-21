@@ -21,6 +21,7 @@ model Todos {
     statusId  String
     image     String?
     blurHash  String?
+    position  Int
     user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
     userId    String
     createdAt DateTime @default(now())
